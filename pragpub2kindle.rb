@@ -4,7 +4,7 @@ require 'open-uri'
 require 'mail'
 require 'optparse'
 
-options = {}
+options = {hostname: 'localhost', port: '25'}
 optparse = OptionParser.new do |opts|
   opts.banner = "Usage: pragpub2kindle.rb [options] [yyyy-mm]"
   options[:mailto] = nil
@@ -18,6 +18,12 @@ optparse = OptionParser.new do |opts|
   options[:dir] = nil
   opts.on('-d', '--dir DIR', 'Directory to save files') do |dir|
     options[:dir] = dir
+  end
+  opts.on('-H', '--hostname HOSTNAME', "SMTP hostname, defaults to #{options[:hostname]}") do |hostname|
+    options[:hostname] = hostname
+  end
+  opts.on('-p', '--port PORT', "SMTP port, defaults to #{options[:port]}") do |port|
+    options[:port] = port
   end
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
@@ -79,5 +85,6 @@ else
     :mime_type => 'application/x-mobipocket-ebook',
     :content => File.read(filepath)
   }
+  mail.delivery_method :smtp, hostname: options[:hostname], port: options[:port]
   mail.deliver!
 end
